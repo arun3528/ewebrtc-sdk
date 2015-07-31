@@ -88,7 +88,7 @@
   onConferenceEnded, onJoiningConference, onInvitationSent, onInviteAccepted, onInviteRejected,
   onParticipantRemoved, onConferenceDisconnecting, onConferenceHold, onConferenceResumed, onNotification,
   onCallSwitched, onCallRingbackProvided, onTransferring, onTransferred, onCallMoved, onMediaModification,
-  onStateChanged, onCallModification, onToneSent, onToneSending*/</span>
+  onStateChanged, onModificationInProgress, onToneSent, onToneSending*/</span>
 <span class="hljs-pi">
 'use strict'</span>;
 
@@ -2538,8 +2538,8 @@ and <a href="../../lib/webrtc-sdk/doc/Phone.html#event:call:state-changed"><stro
             </div>
             
             <div class="content"><div class='highlight'><pre>
-phone.on(<span class="hljs-string">'call:modification-in-progress'</span>, onMediaModification);
-phone.on(<span class="hljs-string">'call:media-modification'</span>, onCallModification);
+phone.on(<span class="hljs-string">'call:modification-in-progress'</span>, onModificationInProgress);
+phone.on(<span class="hljs-string">'call:media-modification'</span>, onMediaModification);
 phone.on(<span class="hljs-string">'call:state-changed'</span>, onStateChanged);</pre></div></div>
             
         </li>
@@ -3323,6 +3323,118 @@ You must pass in:</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-190">&#182;</a>
               </div>
+              <h3 id="joining-a-second-conference">Joining a second conference</h3>
+<hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-191">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-191">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-192">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-192">&#182;</a>
+              </div>
+              <p>Once you have an active call or conference, you can handle a second incoming conference using the
+<a href="../../lib/webrtc-sdk/doc/Phone.html#joinConference"><strong>phone.joinConference</strong></a> method.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">joinSecondConference</span><span class="hljs-params">(localMedia, remoteMedia, action)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-193">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-193">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#joinConference"><strong>phone.joinConference</strong></a> method receives:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  phone.joinConference({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-194">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-194">&#182;</a>
+              </div>
+              <ul>
+<li>the <code>HTMLVideoElement</code> object to use for the local stream</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    localMedia: localMedia,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-195">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-195">&#182;</a>
+              </div>
+              <ul>
+<li>the <code>HTMLVideoElement</code> object to use for the remote stream.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    remoteMedia: remoteMedia,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-196">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-196">&#182;</a>
+              </div>
+              <ul>
+<li>an optional <code>action</code> (<code>hold</code> or <code>end</code>) to indicate whether to hold or end the current call.
+Use <a href="../../lib/webrtc-sdk/doc/Phone.html#isCallInProgress"><strong>phone.isCallInProgress</strong></a> to check whether there is a call in progress.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    action: action
+  });
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-197">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-197">&#182;</a>
+              </div>
               <h2 id="operations-during-an-ongoing-conference">Operations during an ongoing Conference</h2>
 <p>As the host of a Conference you can perform basic operations with
 them like:</p>
@@ -3339,121 +3451,16 @@ them like:</p>
         </li>
         
         
-        <li id="section-191">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-191">&#182;</a>
-              </div>
-              <h3 id="adding-participants-to-a-conference">Adding participants to a conference</h3>
-<hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-192">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-192">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-193">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-193">&#182;</a>
-              </div>
-              <p>First you must register handlers for the events published
-during the process of adding a participant:</p>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-194">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-194">&#182;</a>
-              </div>
-              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-sent"><strong>conference:invitation-sent</strong></a> event
-is published when the invitation was sent successfully.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-sent'</span>, onInvitationSent);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-195">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-195">&#182;</a>
-              </div>
-              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-accepted"><strong>conference:invitation-accepted</strong></a>
-event is published when the invitation is accepted by the other party.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-accepted'</span>, onInviteAccepted);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-196">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-196">&#182;</a>
-              </div>
-              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-rejected"><strong>conference:invitation-rejected</strong></a>
-event is published when the invitation is rejected by the other party.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-rejected'</span>, onInviteRejected);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-197">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-197">&#182;</a>
-              </div>
-              <p>Then use the <a href="../../lib/webrtc-sdk/doc/Phone.html#addParticipant"><strong>phone.addParticipant</strong></a> method to adds participant, e.g.,</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addParticipant</span><span class="hljs-params">(participant)</span> </span>{</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-198">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-198">&#182;</a>
               </div>
-              <pre><code>  phone.addParticipant(<span class="hljs-string">'11231231234'</span>);
-</code></pre>
+              <h3 id="adding-participants-to-a-conference">Adding participants to a conference</h3>
+<hr>
+
             </div>
-            
-            <div class="content"><div class='highlight'><pre>  phone.addParticipant(participant);
-}</pre></div></div>
             
         </li>
         
@@ -3464,9 +3471,7 @@ event is published when the invitation is rejected by the other party.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-199">&#182;</a>
               </div>
-              <h3 id="removing-participants">Removing Participants</h3>
-<hr>
-
+              
             </div>
             
         </li>
@@ -3478,7 +3483,9 @@ event is published when the invitation is rejected by the other party.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-200">&#182;</a>
               </div>
-              
+              <p>First you must register handlers for the events published
+during the process of adding a participant:</p>
+
             </div>
             
         </li>
@@ -3489,6 +3496,111 @@ event is published when the invitation is rejected by the other party.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-201">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-sent"><strong>conference:invitation-sent</strong></a> event
+is published when the invitation was sent successfully.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-sent'</span>, onInvitationSent);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-202">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-202">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-accepted"><strong>conference:invitation-accepted</strong></a>
+event is published when the invitation is accepted by the other party.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-accepted'</span>, onInviteAccepted);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-203">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-203">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:invitation-rejected"><strong>conference:invitation-rejected</strong></a>
+event is published when the invitation is rejected by the other party.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'conference:invitation-rejected'</span>, onInviteRejected);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-204">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-204">&#182;</a>
+              </div>
+              <p>Then use the <a href="../../lib/webrtc-sdk/doc/Phone.html#addParticipant"><strong>phone.addParticipant</strong></a> method to adds participant, e.g.,</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addParticipant</span><span class="hljs-params">(participant)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-205">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-205">&#182;</a>
+              </div>
+              <pre><code>  phone.addParticipant(<span class="hljs-string">'11231231234'</span>);
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  phone.addParticipant(participant);
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-206">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-206">&#182;</a>
+              </div>
+              <h3 id="removing-participants">Removing Participants</h3>
+<hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-207">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-207">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-208">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-208">&#182;</a>
               </div>
               <p>First register for <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:participant-removed"><strong>conference:participant-removed</strong></a> event, which
 is published when the participant is successfully removed from the current conference.</p>
@@ -3502,11 +3614,11 @@ is published when the participant is successfully removed from the current confe
         </li>
         
         
-        <li id="section-202">
+        <li id="section-209">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-202">&#182;</a>
+                <a class="pilcrow" href="#section-209">&#182;</a>
               </div>
               <p>Use the <a href="../../lib/webrtc-sdk/doc/Phone.html#removeParticipant"><strong>phone.removeParticipant</strong></a> method with the participant’s ID
 to remove a participant from the current conference, e.g.,</p>
@@ -3518,11 +3630,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-203">
+        <li id="section-210">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-203">&#182;</a>
+                <a class="pilcrow" href="#section-210">&#182;</a>
               </div>
               <pre><code>phone.removeParticipant(<span class="hljs-string">'john@domain.com'</span>);
 </code></pre>
@@ -3533,11 +3645,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-204">
+        <li id="section-211">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-204">&#182;</a>
+                <a class="pilcrow" href="#section-211">&#182;</a>
               </div>
               <h3 id="get-the-list-of-active-participants">Get the list of active participants</h3>
 <hr>
@@ -3547,11 +3659,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-205">
+        <li id="section-212">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-205">&#182;</a>
+                <a class="pilcrow" href="#section-212">&#182;</a>
               </div>
               
             </div>
@@ -3561,11 +3673,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-206">
+        <li id="section-213">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-206">&#182;</a>
+                <a class="pilcrow" href="#section-213">&#182;</a>
               </div>
               <p>Use the <a href="../../lib/webrtc-sdk/doc/Phone.html#getParticipants"><strong>phone.getParticipants</strong></a> method to get the list of active participants.</p>
 
@@ -3577,11 +3689,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-207">
+        <li id="section-214">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-207">&#182;</a>
+                <a class="pilcrow" href="#section-214">&#182;</a>
               </div>
               <h3 id="rejecting-conference-invites">Rejecting conference invites</h3>
 <hr>
@@ -3591,11 +3703,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-208">
+        <li id="section-215">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-208">&#182;</a>
+                <a class="pilcrow" href="#section-215">&#182;</a>
               </div>
               
             </div>
@@ -3605,11 +3717,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-209">
+        <li id="section-216">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-209">&#182;</a>
+                <a class="pilcrow" href="#section-216">&#182;</a>
               </div>
               <p>Use the <a href="../../lib/webrtc-sdk/doc/Phone.html#rejectConference"><strong>phone.rejectConference</strong></a> method to reject the incoming conference invite.</p>
 
@@ -3621,11 +3733,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-210">
+        <li id="section-217">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-210">&#182;</a>
+                <a class="pilcrow" href="#section-217">&#182;</a>
               </div>
               <h3 id="ending-a-conference">Ending a conference</h3>
 <hr>
@@ -3635,11 +3747,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-211">
+        <li id="section-218">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-211">&#182;</a>
+                <a class="pilcrow" href="#section-218">&#182;</a>
               </div>
               
             </div>
@@ -3647,11 +3759,11 @@ to remove a participant from the current conference, e.g.,</p>
         </li>
         
         
-        <li id="section-212">
+        <li id="section-219">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-212">&#182;</a>
+                <a class="pilcrow" href="#section-219">&#182;</a>
               </div>
               <p>Register for <a href="../../lib/webrtc-sdk/doc/Phone.html#event:conference:disconnecting"><strong>conference:disconnecting</strong></a> event; it is published
 immediately after invoking <a href="../../lib/webrtc-sdk/doc/Phone.html#endConference"><strong>phone.endConference</strong></a>.</p>
@@ -3665,11 +3777,11 @@ immediately after invoking <a href="../../lib/webrtc-sdk/doc/Phone.html#endConfe
         </li>
         
         
-        <li id="section-213">
+        <li id="section-220">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-213">&#182;</a>
+                <a class="pilcrow" href="#section-220">&#182;</a>
               </div>
               <p>Use the <a href="../../lib/webrtc-sdk/doc/Phone.html#endConference"><strong>phone.endConference</strong></a> method to end the current conference.</p>
 
@@ -3681,11 +3793,11 @@ immediately after invoking <a href="../../lib/webrtc-sdk/doc/Phone.html#endConfe
         </li>
         
         
-        <li id="section-214">
+        <li id="section-221">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-214">&#182;</a>
+                <a class="pilcrow" href="#section-221">&#182;</a>
               </div>
               <h1 id="phone-utilities">Phone utilities</h1>
 
@@ -3694,11 +3806,11 @@ immediately after invoking <a href="../../lib/webrtc-sdk/doc/Phone.html#endConfe
         </li>
         
         
-        <li id="section-215">
+        <li id="section-222">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-215">&#182;</a>
+                <a class="pilcrow" href="#section-222">&#182;</a>
               </div>
               <p>The phone object provides utility methods for common tasks related phone number
 parsing and formatting.</p>
@@ -3708,11 +3820,11 @@ parsing and formatting.</p>
         </li>
         
         
-        <li id="section-216">
+        <li id="section-223">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-216">&#182;</a>
+                <a class="pilcrow" href="#section-223">&#182;</a>
               </div>
               <h2 id="parsing-phone-numbers">Parsing phone numbers</h2>
 <hr>
@@ -3722,11 +3834,11 @@ parsing and formatting.</p>
         </li>
         
         
-        <li id="section-217">
+        <li id="section-224">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-217">&#182;</a>
+                <a class="pilcrow" href="#section-224">&#182;</a>
               </div>
               
             </div>
@@ -3736,11 +3848,11 @@ parsing and formatting.</p>
         </li>
         
         
-        <li id="section-218">
+        <li id="section-225">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-218">&#182;</a>
+                <a class="pilcrow" href="#section-225">&#182;</a>
               </div>
               <p>In order to get the phone number in a format that the library can use to
 dial, use the <a href="../../lib/webrtc-sdk/doc/Phone.html#cleanPhoneNumber"><strong>phone.cleanPhoneNumber</strong></a> method, it will convert numbers like
@@ -3755,11 +3867,11 @@ and <code>1800CALFEDX</code> to <code>18002253339</code>.</p>
         </li>
         
         
-        <li id="section-219">
+        <li id="section-226">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-219">&#182;</a>
+                <a class="pilcrow" href="#section-226">&#182;</a>
               </div>
               <h2 id="parsing-caller-info">parsing caller info</h2>
 <hr>
@@ -3769,11 +3881,11 @@ and <code>1800CALFEDX</code> to <code>18002253339</code>.</p>
         </li>
         
         
-        <li id="section-220">
+        <li id="section-227">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-220">&#182;</a>
+                <a class="pilcrow" href="#section-227">&#182;</a>
               </div>
               
             </div>
@@ -3783,11 +3895,11 @@ and <code>1800CALFEDX</code> to <code>18002253339</code>.</p>
         </li>
         
         
-        <li id="section-221">
+        <li id="section-228">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-221">&#182;</a>
+                <a class="pilcrow" href="#section-228">&#182;</a>
               </div>
               <p>In order to get the caller information like protocol, caller-id and domain we can use
 the <a href="../../lib/webrtc-sdk/doc/Phone.html#getCallerInfo"><strong>phone.getCallerInfo</strong></a> method,
@@ -3807,109 +3919,16 @@ it will convert callerUri like
         </li>
         
         
-        <li id="section-222">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-222">&#182;</a>
-              </div>
-              <h3 id="ending-a-phone-utilities">Ending a Phone utilities</h3>
-<hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-223">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-223">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-224">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-224">&#182;</a>
-              </div>
-              <h1 id="dtmf-dual-tone-multi-frequency-">DTMF [Dual Tone - Multi Frequency]</h1>
-<hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-225">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-225">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-226">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-226">&#182;</a>
-              </div>
-              <p>The phone object provides methods to use DTMF functionality when in a call..</p>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-227">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-227">&#182;</a>
-              </div>
-              <h3 id="register-for-_senddtmftone_-event">Register for <em>sendDTMFTone</em> event</h3>
-<hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-228">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-228">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
         <li id="section-229">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-229">&#182;</a>
               </div>
-              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:dtmf:tone-sending"><strong>dtmf:tone-sending</strong></a> event is published
-immediately after tone request is sent.</p>
+              <h3 id="ending-a-phone-utilities">Ending a Phone utilities</h3>
+<hr>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'dtmf:tone-sending'</span>, onToneSending);</pre></div></div>
             
         </li>
         
@@ -3920,13 +3939,8 @@ immediately after tone request is sent.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-230">&#182;</a>
               </div>
-              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:dtmf:tone-sent"><strong>dtmf:tone-sent</strong></a> event is published immediately
-after signal is passed into streams successfully.</p>
-
+              
             </div>
-            
-            <div class="content"><div class='highlight'><pre>
-phone.on(<span class="hljs-string">'dtmf:tone-sent'</span>, onToneSent);</pre></div></div>
             
         </li>
         
@@ -3937,7 +3951,7 @@ phone.on(<span class="hljs-string">'dtmf:tone-sent'</span>, onToneSent);</pre></
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-231">&#182;</a>
               </div>
-              <h3 id="senddtmftone">sendDTMFTone</h3>
+              <h1 id="dtmf-dual-tone-multi-frequency-">DTMF [Dual Tone - Multi Frequency]</h1>
 <hr>
 
             </div>
@@ -3954,8 +3968,6 @@ phone.on(<span class="hljs-string">'dtmf:tone-sent'</span>, onToneSent);</pre></
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendDTMFTone</span><span class="hljs-params">(tone)</span> </span>{</pre></div></div>
-            
         </li>
         
         
@@ -3964,6 +3976,106 @@ phone.on(<span class="hljs-string">'dtmf:tone-sent'</span>, onToneSent);</pre></
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-233">&#182;</a>
+              </div>
+              <p>The phone object provides methods to use DTMF functionality when in a call..</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-234">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-234">&#182;</a>
+              </div>
+              <h3 id="register-for-_senddtmftone_-event">Register for <em>sendDTMFTone</em> event</h3>
+<hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-235">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-235">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-236">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-236">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:dtmf:tone-sending"><strong>dtmf:tone-sending</strong></a> event is published
+immediately after tone request is sent.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>phone.on(<span class="hljs-string">'dtmf:tone-sending'</span>, onToneSending);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-237">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-237">&#182;</a>
+              </div>
+              <p>The <a href="../../lib/webrtc-sdk/doc/Phone.html#event:dtmf:tone-sent"><strong>dtmf:tone-sent</strong></a> event is published immediately
+after signal is passed into streams successfully.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+phone.on(<span class="hljs-string">'dtmf:tone-sent'</span>, onToneSent);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-238">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-238">&#182;</a>
+              </div>
+              <h3 id="senddtmftone">sendDTMFTone</h3>
+<hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-239">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-239">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendDTMFTone</span><span class="hljs-params">(tone)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-240">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-240">&#182;</a>
               </div>
               <p>Once you have registered handlers for all appropriate
 events you can use the <a href="../../lib/webrtc-sdk/doc/Phone.html#sendDTMFTone"><strong>phone.sendDTMFTone</strong></a> method on Phone to
@@ -3976,11 +4088,11 @@ start send a DTMF tone.</p>
         </li>
         
         
-        <li id="section-234">
+        <li id="section-241">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-234">&#182;</a>
+                <a class="pilcrow" href="#section-241">&#182;</a>
               </div>
               <ul>
 <li>a valid dial tone [0,1,2,3,4,5,6,7,8,9,*,#]</li>
@@ -3993,11 +4105,11 @@ start send a DTMF tone.</p>
         </li>
         
         
-        <li id="section-235">
+        <li id="section-242">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-235">&#182;</a>
+                <a class="pilcrow" href="#section-242">&#182;</a>
               </div>
               <ul>
 <li>a the intertone gap (in ms &gt; 50) [50, 60]</li>
@@ -4012,11 +4124,11 @@ start send a DTMF tone.</p>
         </li>
         
         
-        <li id="section-236">
+        <li id="section-243">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-236">&#182;</a>
+                <a class="pilcrow" href="#section-243">&#182;</a>
               </div>
               <h3 id="ending-a-dtmf">Ending a DTMF</h3>
 <hr>
@@ -4026,11 +4138,11 @@ start send a DTMF tone.</p>
         </li>
         
         
-        <li id="section-237">
+        <li id="section-244">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-237">&#182;</a>
+                <a class="pilcrow" href="#section-244">&#182;</a>
               </div>
               
             </div>
