@@ -88,7 +88,7 @@
   onConferenceEnded, onJoiningConference, onInvitationSent, onInviteAccepted, onInviteRejected,
   onParticipantRemoved, onConferenceDisconnecting, onConferenceHold, onConferenceResumed, onNotification,
   onCallSwitched, onCallRingbackProvided, onTransferring, onTransferred, onCallMoved, onMediaModification,
-  onStateChanged, onCallModification, onToneSent, onToneSending*/</span>
+  onStateChanged, onModificationInProgress, onToneSent, onToneSending*/</span>
 <span class="hljs-pi">
 'use strict'</span>;
 
@@ -2538,8 +2538,8 @@ and <a href="../api-docs/Phone.html#event:call:state-changed"><strong>call:state
             </div>
             
             <div class="content"><div class='highlight'><pre>
-phone.on(<span class="hljs-string">'call:modification-in-progress'</span>, onMediaModification);
-phone.on(<span class="hljs-string">'call:media-modification'</span>, onCallModification);
+phone.on(<span class="hljs-string">'call:modification-in-progress'</span>, onModificationInProgress);
+phone.on(<span class="hljs-string">'call:media-modification'</span>, onMediaModification);
 phone.on(<span class="hljs-string">'call:state-changed'</span>, onStateChanged);</pre></div></div>
             
         </li>

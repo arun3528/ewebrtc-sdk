@@ -30,64 +30,96 @@ The following features will be added soon:
 * Firefox browser support
 * AT&T Mobile Number support
 
-# v1.0.0-rc.26
+# v1.0.0-rc.27
 
 July 22, 2015
-
-* **Fix:** Throw SDK error when trying to send a DTMF tone when call is on hold.
-* **Fix:** SDK should put current call on hold while dialing a new number using `phone.dial`.
+#### Fixed Issues
+* **Fix:** Adding a 2nd call doesn't work after putting the first call on hold explicitly.
+* **Fix:** Dial method should throw an error when there is an active call.
+* **Fix:** Error for phone.acceptModifications should be handled gracefully if no modifications data on the current call.
+* **Fix:** Media fails when canceling 2nd outgoing call.
+* **Fix:** Media fails if rejecting incoming call while call is in progress.
+* **Fix:** Call from first user (already on hold) when second call is cancelled should be resumed successfully with media on both sides.
+* **Fix:** Two Way Hold: When caller is on hold, callee cannot put caller on hold.
+* **Fix:** Move after been put on hold not working.
+* **Fix:** Browser to Browser Move results in the target getting a Upgraded to Video Message
 
 ## Known Issues
 
+### SDK Issues
+
+#### Basic Call
+* No audio from Callee when resuming a call after upgrade by caller. 
+* Redirect uri with invalid value needs better error message. 
+
+#### Basic Conference  
+* While in a conference, creating a 2nd conference doesn’t generate an error. 
+* During conference if user logs out `disconnectConference` method is not getting called. 
+
+#### Move
+* Move from the callee side has one way audio video when done Twice. 
 * When I initiate move, my devices will start ringing, but if the other participant disconnects, I never get notified and my devices keep ringing. 
-* SSL role error when callee puts caller on hold after successful upgrade. 
-* SSL role error when accepting media modification initiated by the callee. 
-* Modifying call multiple times from the callee side throws the error: Failed to set remote offer SDP: Called with SDP without ice-ufrag and ice-pwd. 
 * One Way Audio after successfully transferring video call from Browser to ICMN handset. 
-* Resume from transferee results in transfer target throwing error: Failed to set remote offer SDP: Called with SDP without ice-ufrag and ice-pwd. 
-* Transfer to a non-provsioned Mobile Device target fails while in video Call. The transfer fails with error: `There was an error transferring the call. Forbidden`. 
-* When a participant leaves a conference by using the `endConference` method, the platform does not generate
-  the necessary event to inform the host.
-* Media stream may not function correctly unless IPv6 is disabled. The default behavior is to use IPv4, so the developer doesn't need to explicitly disable IPv6. 
+
+#### Transfer
+* Camera not released after Transfer Successful. 
+
+#### Downgrade/Upgrade
+* After Rejecting upgrade, holding then resuming results in no video. 
+* After Rejecting downgrade, holding then resuming results in no video. 
+
+
+
+### Platform  Defects :
+
+#### Impacted scenarios due to Conference Issue
 * When any user started a conference and invites a Mobile Device user and the user rejects the invitation. I don't get
 invitation rejected event. 
-* Adding Mobile Device as a participant to a conference results in one way audio. 
-* Move/Hold Call from callee fails after successful upgrade reject from caller side. 
-* After Successful downgrade , move from the callee show as Downgrade request. 
-* Move caller after downgrade caller fails. 
-* Upgrade from caller fails after upgrade request was rejected by caller.  
-* Upgrade , Hold, resume, move fails with ssl-role error after Reject a downgrade from caller. 
-* Upgrade from Callee after successful reject(upgrade) Callee fails with ssl-role error. 
-* Hold,Move failed from caller side after successful upgrade from callee. 
+* Adding Mobile Device as a participant to a video conference results in one way audio. 
+* When a participant leaves a conference by using the `endConference` method, the platform does not generate
+  the necessary event to inform the host.
+
+
+#### Impacted scenarios due to SSL role Issue
+* Hold-resume from callee fails after upgrade from Callee. 
+* Ssl role error when trying to upgrade from callee side after callee rejected the previous upgrade from caller. 
+* Reject downgrade from Callee fails with ssl role. 
 * Reject from Caller fails when call was previously upgraded by callee. 
+* Hold,Move failed from caller side after successful upgrade from callee. 
+* Upgrade from Callee after successful reject(upgrade) Callee fails with ssl-role error. 
+* Upgrade , Hold, resume, move fails with ssl-role error after Reject a downgrade from caller. 
+* Upgrade from caller fails after upgrade request was rejected by caller.  
+* Move/Hold Call from callee fails after successful upgrade reject from caller side. 
+* SSL role error when callee puts caller on hold after successful upgrade. 
+* SSL role error when accepting media modification initiated by the callee. 
+
+#### Impacted scenarios due to Ice-ufrag Issue
 * Hold from callee throws ice-ufrag after downgrade from caller / from callee. 
 * Upgrade Callee after Downgrade Callee throws an ice-ufrag error. 
 * Reject , upgrade doesn't work from the callee side after downgrade from caller. 
 * Hold after reject from callee fails. 
-* No audio from Callee when resuming a call after upgrade by caller. 
-* Reject downgrade from Callee fails with ssl role. 
-* Hold-resume from callee fails after upgrade from Callee. 
-* Ssl role error when trying to upgrade from callee side after callee rejected the previous upgrade from caller. 
-* Move from the callee side has one way audio video when done Twice. 
+* Modifying call multiple times from the callee side throws the error: Failed to set remote offer SDP: Called with SDP without ice-ufrag and ice-pwd. 
+* Resume from transferee results in transfer target throwing error: Failed to set remote offer SDP: Called with SDP without ice-ufrag and ice-pwd. 
+
+
+#### Impacted scenario due to Move Issue
+* After Successful downgrade , move from the callee show as Downgrade request. 
+* Move caller after downgrade caller fails. 
+
+#### Media Issues
 * Video streaming issues when the caller downgrades then upgrades the call. 
-* After Rejecting upgrade, holding then resuming results in no video. 
-* After Rejecting downgrade, holding then resuming results in no video. 
-* Camera not released after Transfer Successful. 
-* Dial method should throw an error when there is an active call. 
-* Error for phone.acceptModifications should be handled gracefully if no modifications data on the current call. 
-* While in a conference, creating a 2nd conference doesn’t generate an error. 
-* Media fails when canceling 2nd outgoing call. 
-* Media fails if rejecting incoming call while call is in progress. 
-* Call from first user (already on hold) when second call is cancelled should be resumed successfully with media on both sides. 
-* One-way audio while transferring from a provisioned PSTN to NOTN. 
-* During conference if user logs out `disconnectConference` method is not getting called. 
-* Redirect uri with invalid value needs better error message. 
-* Dial call as ACCOUNT_ID - Session Renegotiation error. 
 * Video switching between participants is sometimes inconsistent. Turn off your microphone while the other participant speaks, that will switch the video to the speaking participant.
+
+
+#### IPv6 media Issue
+* Media stream may not function correctly unless IPv6 is disabled. The default behavior is to use IPv4, so the developer doesn't need to explicitly disable IPv6. 
+
 
 ## Notes
 
 * Establishing calls with Firefox is notably slower than doing so with Chrome.
+* Transfer to a non-provisioned Mobile Device target fails while in video Call. The transfer fails with error: `There
+ was an error transferring the call. Forbidden`.  (Platform unsupported)
 
 ## Tested Environments
 
@@ -97,6 +129,13 @@ invitation rejected event.
 
 
 # Changelog
+
+# v1.0.0-rc.26
+
+July 22, 2015
+
+* **Fix:** Throw SDK error when trying to send a DTMF tone when call is on hold.
+* **Fix:** SDK should put current call on hold while dialing a new number using `phone.dial`.
 
 # v1.0.0-rc.25
 
@@ -121,7 +160,6 @@ July 13, 2015
 * **Fix:** When callee in audio-only call puts the caller on hold and caller tries to move the call, the phone doesn't ring and there is no media flow between both.
 * **Fix:** Callee is allowed to upgrade in held state.
 * **Fix:** Moving the second call will display `connecting` notification after call got connected for a user with 2 calls.
-* **Fix:** Browser to Browser Move results in the target getting a Upgraded to Video Message
 * **Fix:** If Bob puts Alice on hold, if successful the state of Alice's call should be hold.
 * **Fix:** Foreground call loses media if background call is hungup by the other party
 * **Fix:** SDP Parsing Error: c= connection line not specified for every media level, validation failed. when moving a call to the mobile phone.

@@ -3,13 +3,13 @@
   validateAddress, associateE911Id, getE911Id, loginVirtualNumberOrAccountIdUser, loginEnhancedWebRTC,
   onError, phoneLogout, loadView, switchView, dialCall, answer, answer2ndCall,
   hold, resume, startConference, joinConference, addParticipant, virtual_numbers,
-  getParticipants, removeParticipant, move, switchCall, cleanPhoneNumber, ToggleDialPad, dialpad, sendDialTone*/
+  getParticipants, removeParticipant, move, switchCall, cleanPhoneNumber, toggleDialPad,
+  dialpad, sendDTMFTone */
 
 'use strict';
 
 var sessionData = {},
-  participantsVisible = false,
-  holdInitiator;
+  participantsVisible = false;
 
 function loadSampleApp() {
   loadConfiguration(function () {
@@ -271,12 +271,10 @@ function showDialPad() {
 }
 
 function holdCall() {
-  holdInitiator = true;
   hold();
 }
 
 function resumeCall() {
-  holdInitiator = false;
   resume();
 }
 

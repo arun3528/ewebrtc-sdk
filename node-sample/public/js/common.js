@@ -15,7 +15,7 @@
   onConferenceEnded, onJoiningConference, onInvitationSent, onInviteAccepted, onInviteRejected,
   onParticipantRemoved, onConferenceDisconnecting, onConferenceHold, onConferenceResumed, onNotification,
   onCallSwitched, onCallRingbackProvided, onTransferring, onTransferred, onCallMoved, onMediaModification,
-  onStateChanged, onCallModification, onToneSent, onToneSending*/
+  onStateChanged, onModificationInProgress, onToneSent, onToneSending*/
 
 'use strict';
 
@@ -801,8 +801,8 @@ function transfer() {
 // [**call:modification-in-progress**](../../lib/webrtc-sdk/doc/Phone.html#event:call:modification-in-progress)
 // and [**call:state-changed**](../../lib/webrtc-sdk/doc/Phone.html#event:call:state-changed) events.
 
-phone.on('call:modification-in-progress', onMediaModification);
-phone.on('call:media-modification', onCallModification);
+phone.on('call:modification-in-progress', onModificationInProgress);
+phone.on('call:media-modification', onMediaModification);
 phone.on('call:state-changed', onStateChanged);
 
 // * `call:modification-in-progress` indicates that the media modification is taking place but has not completed.

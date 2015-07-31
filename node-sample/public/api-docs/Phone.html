@@ -398,9 +398,11 @@ This method fires <a href="Phone.html#event:call:modification-in-progress">Phone
 <p>This method can fire <a href="Phone.html#event:error">Phone#event:error</a> that can have these error codes:</p>
 <p><strong>Error Codes</strong></p>
 <ul>
-<li>31000 - Failed to acceptModification as there is not an active Call.</li>
-<li>31001 - Called acceptModification in an invalid state.</li>
-<li>31002 - Error during getUserMedia for acceptModification for Call.</li>
+<li>31000 - Failed to accept modification, there is no active call.</li>
+<li>31001 - Failed to accept modification, there is no modification to accept.</li>
+<li>31002 - Failed to accept modification, the call is in an invalid state.</li>
+<li>31003 - Internal error occurred.</li>
+<li>31004 - Error during getUserMedia for accept modification for call.</li>
 </ul>
     </div>
     
@@ -4665,9 +4667,10 @@ event which indicates an incoming media modification request.</p>
 her video. The peer that rejected will keep sending only his audio.</p>
 <p><strong>Error Codes</strong></p>
 <ul>
-<li>32000 - Failed to reject modification, there is not an active call.</li>
+<li>32000 - Failed to reject modification, there is no active call.</li>
 <li>32001 - Failed to reject modification, there is no modification to reject.</li>
 <li>32002 - Failed to reject modification, active call is in an invalid state.</li>
+<li>32003 - Internal error occurred.</li>
 </ul>
     </div>
     
@@ -10457,37 +10460,6 @@ The user should have initiated and accepted media modification request.</p>
 
         <tr>
             
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The current state after media modification.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
                 <td class="name"><code>from</code></td>
             
 
@@ -10548,6 +10520,99 @@ The user should have initiated and accepted media modification request.</p>
 
         <tr>
             
+                <td class="name"><code>codec</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The CODECs associated with the call.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>operation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Operation that generated the event.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>generator</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The the side(initiator/receiver) that generated the event.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
                 <td class="name"><code>oldState</code></td>
             
 
@@ -10600,37 +10665,6 @@ The user should have initiated and accepted media modification request.</p>
             
 
             <td class="description last"><p>The new state of the call.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>codec</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The CODECs associated with the call.</p></td>
         </tr>
 
 	
@@ -17952,7 +17986,7 @@ initialized and ready to make, receive calls</p>
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on 2015-07-23T16:07:03-07:00 using the <a
+		on 2015-07-31T10:49:48-07:00 using the <a
 			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>

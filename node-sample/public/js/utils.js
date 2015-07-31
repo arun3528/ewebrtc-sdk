@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, node: true, debug: true, todo: true, indent: 2, maxlen: 150*/
-/*global ATT, RESTClient, console, log, phone, holdInitiator, eWebRTCDomain,
+/*global ATT, RESTClient, console, log, phone, eWebRTCDomain,
   sessionData, defaultHeaders, onError, getCallerInfo, Dialpad, dialer,
   loginMobileNumber, createAccessToken, associateAccessToken, createE911Id, ewebrtc_domain,
   loginEnhancedWebRTC, hideParticipants, showParticipants, acceptModification, rejectModification*/
@@ -8,10 +8,9 @@
 
 var buttons,
   defaultHeaders,
-  autoRejectTimer, 
+  autoRejectTimer,
   dialpad,
   muted = false,
-  dialerVisible = false,
   autoRejectWaitingTime = 5000;
 
 defaultHeaders = {
@@ -491,6 +490,7 @@ function enableUI() {
   document.getElementById('btn-hold').disabled = false;
   document.getElementById('btn-resume').disabled = true;
   document.getElementById('btn-move').disabled = false;
+
   if ('audio' === phone.getMediaType()) {
     document.getElementById('btn-upgrade').disabled = false;
     document.getElementById('btn-downgrade').disabled = true;
@@ -498,6 +498,7 @@ function enableUI() {
     document.getElementById('btn-upgrade').disabled = true;
     document.getElementById('btn-downgrade').disabled = false;
   }
+
   document.getElementById('btn-hangup').disabled = false;
 }
 
@@ -765,24 +766,11 @@ function onCallUnmuted(data) {
 
 
 // This event callback gets invoked when a call is put on hold
-function onCallHeld(data) {
-  resetUI();
-
-  if (holdInitiator) {
-    setMessage('Call on hold. Time: ' + data.timestamp);
-
-    document.getElementById('btn-hold').disabled = true;
-    document.getElementById('btn-resume').disabled = false;
-
-  } else {
-    setMessage('Call was held. Time: ' + data.timestamp);
-  }
+function onCallHeld() {
 }
 
 // This event callback gets invoked when a call is in resumed state.
-function onCallResume(data) {
-  setMessage('Call resumed. Time: ' + data.timestamp);
-  enableUI();
+function onCallResume() {
 }
 
 function onConferenceHold(data) {
@@ -795,7 +783,6 @@ function onConferenceResumed(data) {
   setMessage('Conference resumed. Time: ' + data.timestamp);
   enableUI();
 }
-
 
 function onToneSent(data) {
   setMessage('dtmf tone insterted.Tone: ' + data.tone + ' Time: ' + data.timestamp);
@@ -814,33 +801,66 @@ function onConferenceDisconnecting(data) {
 }
 
 function onCallMoved(data) {
-  setMessage('Call Moved Successfully. Time: ' + data.timestamp);
+  setMessage('Call moved successfully. Time: ' + data.timestamp);
 }
 
 function onTransferring(data) {
-  setMessage('Call Transfer Initiated Successfully. Time: ' + data.timestamp);
+  setMessage('Call transfer initiated successfully. Time: ' + data.timestamp);
 }
 
 function onTransferred(data) {
-  setMessage('Call Transfer Successfully. Time: ' + data.timestamp);
+  setMessage('Call transferred successfully. Time: ' + data.timestamp);
 }
 
-function onMediaModification(data) {
-  setMessage('Call is being modified to ' + data.mediaType + '. Time: ' + data.timestamp);
+function onModificationInProgress(data) {
+  setMessage('A call modification of type ' + data.operation + ' is in progress. Time: ' + data.timestamp);
 }
 
 function onStateChanged(data) {
   setMessage('Call state changed from ' + data.oldState + ' to ' + data.newState + '. Time: ' + data.timestamp);
 
-  if ('modification-in-progress' === data.oldState && 'connected' === data.newState) {
-    setMessage('Call modified to ' + data.mediaType + '. Time: ' + data.timestamp);
-  }
+  var peer = data.from || data.to;
 
-  if ('connected' === data.newState) {
-    enableUI();
-  } else if ('hold' === data.newState) {
-    document.getElementById('btn-hold').disabled = true;
-    document.getElementById('btn-resume').disabled = false;
+  if ('hold' === data.operation) {            // hold
+    if ('initiator' === data.generator) {     // initiator side
+      if ('held' === data.newState) {           // one way and two way hold
+        setMessage('Call to ' + peer + ' on hold. Time: ' + data.timestamp);
+        document.getElementById('btn-hold').disabled = true;
+        document.getElementById('btn-resume').disabled = false;
+      }
+    } else {                                // recvr side
+      if ('connected' === data.newState) {    // one way hold initiated by other party
+        setMessage('Call is held by ' + peer + '. Time: ' + data.timestamp);
+      } else if ('held' === data.newState) {  // two way hold initiated by other party
+        setMessage('Call is held by ' + peer + '. Time: ' + data.timestamp);
+      }
+    }
+  } else if ('resume' === data.operation) {   // resume
+    if ('initiator' === data.generator) {     // initiator side
+      if ('connected' === data.newState) {      // one way and two way hold resumed
+        setMessage('Call to ' + peer + ' resumed. Time: ' + data.timestamp);
+        document.getElementById('btn-hold').disabled = false;
+        document.getElementById('btn-resume').disabled = true;
+      }
+    } else {                                // recvr side
+      if ('connected' === data.newState) {    // one way hold resumed by other party
+        setMessage('Call is resumed by ' + peer + '. Time: ' + data.timestamp);
+      } else if ('held' === data.newState) {  // two way hold resumed by other party
+        setMessage('Call is resumed by ' + peer + '. Time: ' + data.timestamp);
+      }
+    }
+  } else if ('upgrade' === data.operation) {    // upgrade
+    if ('connected' === data.newState) {
+      setMessage('Call with ' + peer + ' is modified to ' + data.mediaType + '. Time: ' + data.timestamp);
+      enableUI();
+    }
+  } else if ('downgrade' === data.operation) {  // downgrade
+    if ('connected' === data.newState) {
+      setMessage('Call with ' + peer + ' is modified to ' + data.mediaType + '. Time: ' + data.timestamp);
+      enableUI();
+    }
+  } else {
+    resetUI();
   }
 }
 
@@ -947,7 +967,7 @@ function disableTimerAndReject() {
   rejectModification();
 }
 
-function onCallModification(data) {
+function onMediaModification(data) {
   var peer,
     callerInfo,
     acceptModButton,
