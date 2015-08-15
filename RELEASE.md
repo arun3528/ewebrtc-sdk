@@ -30,19 +30,14 @@ The following features will be added soon:
 * Firefox browser support
 * AT&T Mobile Number support
 
-# v1.0.0-rc.27
+# v1.0.0
 
-July 22, 2015
+August 14, 2015
 #### Fixed Issues
-* **Fix:** Adding a 2nd call doesn't work after putting the first call on hold explicitly.
-* **Fix:** Dial method should throw an error when there is an active call.
-* **Fix:** Error for phone.acceptModifications should be handled gracefully if no modifications data on the current call.
-* **Fix:** Media fails when canceling 2nd outgoing call.
-* **Fix:** Media fails if rejecting incoming call while call is in progress.
-* **Fix:** Call from first user (already on hold) when second call is cancelled should be resumed successfully with media on both sides.
-* **Fix:** Two Way Hold: When caller is on hold, callee cannot put caller on hold.
-* **Fix:** Move after been put on hold not working.
-* **Fix:** Browser to Browser Move results in the target getting a Upgraded to Video Message
+* **Fix:** Move from the callee side has one way audio video when done Twice.
+* **New:** New method `Phone.getVersion` to retrieve the SDK version.
+* **New:** New event 'gateway-unreachable' on Phone to capture '502' and '503' errors.
+* **New:** Handling conference invitations when there is an active call or conference.
 
 ## Known Issues
 
@@ -51,6 +46,7 @@ July 22, 2015
 #### Basic Call
 * No audio from Callee when resuming a call after upgrade by caller. 
 * Redirect uri with invalid value needs better error message. 
+* Auto resume fails when dialing a second Call and call was canceled or rejected. 
 
 #### Basic Conference  
 * While in a conference, creating a 2nd conference doesn’t generate an error. 
@@ -67,8 +63,6 @@ July 22, 2015
 #### Downgrade/Upgrade
 * After Rejecting upgrade, holding then resuming results in no video. 
 * After Rejecting downgrade, holding then resuming results in no video. 
-
-
 
 ### Platform  Defects :
 
@@ -130,14 +124,28 @@ invitation rejected event.
 
 # Changelog
 
-# v1.0.0-rc.26
+## v1.0.0-rc.27
+
+July 31, 2015
+
+* **Fix:** Adding a 2nd call doesn't work after putting the first call on hold explicitly.
+* **Fix:** Dial method should throw an error when there is an active call.
+* **Fix:** Error for phone.acceptModifications should be handled gracefully if no modifications data on the current call.
+* **Fix:** Media fails when canceling 2nd outgoing call.
+* **Fix:** Media fails if rejecting incoming call while call is in progress.
+* **Fix:** Call from first user (already on hold) when second call is cancelled should be resumed successfully with media on both sides.
+* **Fix:** Two Way Hold: When caller is on hold, callee cannot put caller on hold.
+* **Fix:** Move after been put on hold not working.
+
+
+## v1.0.0-rc.26
 
 July 22, 2015
 
 * **Fix:** Throw SDK error when trying to send a DTMF tone when call is on hold.
 * **Fix:** SDK should put current call on hold while dialing a new number using `phone.dial`.
 
-# v1.0.0-rc.25
+## v1.0.0-rc.25
 
 July 16, 2015
 

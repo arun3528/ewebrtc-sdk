@@ -41,6 +41,14 @@
 var dhs = require('att-dhs'),
   redirect_uri;
 
+function sendError(res, error) {
+  if ('ENOTFOUND' === error.code) {
+    res.send(503, 'Unable to reach API Server: ' + error.message);
+    return;
+  }
+  res.send(400, error.message);
+}
+
 function getConfig(req, res) {
   try {
     var env_config = dhs.getConfiguration();
@@ -52,9 +60,7 @@ function getConfig(req, res) {
   } catch (error) {
     console.log('Error:', error.message);
 
-    res.json(400, {
-      error: error.message
-    });
+    res.send(400, error.message);
   }
 }
 
@@ -63,29 +69,25 @@ function getConfig(req, res) {
  * authorization (aka user consent), simply redirect
  * to AT&T OAuth API for authorization
  *
- * @param {String} Some input
- * @param {String} Some other input
- * @param {Function} A callback
+ * @param {String} req request object
+ * @param {String} res response object
  * @api public
  */
 
-function getAuthorizationURL(req, res) {
+function redirectToAuthorizeUrl(req, res) {
   console.log('Got authorize request');
 
   var authorize_url;
 
   redirect_uri = req.query.redirect_uri;
 
-  if (!redirect_uri) {
-    console.log('No redirect URL');
-
-    res.json(400, {
-      message: 'No redirect URI provided. Authorize requires a redirect URI'
-    });
-    return;
-  }
-
   try {
+    if (!redirect_uri) {
+      console.log('No redirect URL');
+
+      throw new Error('No redirect URI provided. Authorize requires a redirect URI');
+    }
+
     authorize_url = dhs.getAuthorizeUrl();
 
     console.log('Redirecting to:', authorize_url);
@@ -95,9 +97,7 @@ function getAuthorizationURL(req, res) {
   } catch (error) {
     console.log('Error: ', error.message);
 
-    res.json(400, {
-      error: error.message
-    });
+    res.send(400, error.message);
   }
 
 }
@@ -108,34 +108,37 @@ function getAuthorizationURL(req, res) {
  * what you have configured in the Developer Portal
  * when you created an App with WEBRTCMOBILE scope.
  *
- * @param {String} Some input
- * @param {String} Some other input
- * @param {Function} A callback
+ * @param {String} req request object
+ * @param {String} res response object
  * @api public
  */
-function getCallback(req, res) {
+function redirectToCallbackUrl(req, res) {
   console.log('Got callback request');
 
   var auth_code = req.query.code;
 
   console.log('Authorization code:', auth_code);
+  console.log('Redirect uri:', redirect_uri);
 
-  if (auth_code) {
-    console.log('Redirecting uri:', redirect_uri);
-
-    if (redirect_uri) {
-      console.log('Redirecting to:', redirect_uri);
-
-      //redirect to the URI relative to the root
-      res.redirect(redirect_uri + '?code=' + auth_code);
-      return;
+  try {
+    if (!auth_code) {
+      throw new Error('Unable to retrieve authorization code');
     }
 
-    res.json(400, { message: 'No redirect URI. Unable to redirect' });
-    return;
-  }
+    if (!redirect_uri) {
+      throw new Error('No redirect URI. Unable to redirect');
+    }
 
-  res.json(400, { message: 'Unable to retrieve authorization code' });
+    console.log('Redirecting to:', redirect_uri);
+
+    //redirect to the URI relative to the root
+    res.redirect(redirect_uri + '?code=' + auth_code);
+
+  } catch (error) {
+    console.log('Error: ', error.message);
+
+    res.send(400, error.message);
+  }
 }
 
 function postToken(req, res) {
@@ -147,9 +150,9 @@ function postToken(req, res) {
   console.log('App scope:', req.body.app_scope);
   console.log('Auth code:', req.body.auth_code);
 
-  console.log('Creating access token');
-
   try {
+    console.log('Creating access token');
+
     dhs.createAccessToken({
       app_scope: app_scope,
       auth_code: auth_code,
@@ -161,15 +164,13 @@ function postToken(req, res) {
       error: function (error) {
         console.log('Error in creating access token:', error);
 
-        res.json(400, error);
+        sendError(res, error);
       }
     });
   } catch (error) {
     console.log('Error: ', error.message);
 
-    res.json(400, {
-      error: error.message
-    });
+    res.send(400, error.message);
   }
 }
 
@@ -184,9 +185,9 @@ function postE911Id(req, res) {
   console.log('Address:', req.body.address);
   console.log('Is Address Confirmed:', req.body.is_confirmed);
 
-  console.log('Creating e911 id');
-
   try {
+    console.log('Creating e911 id');
+
     dhs.createE911Id({
       token: token,
       address: address,
@@ -199,15 +200,13 @@ function postE911Id(req, res) {
       error: function (error) {
         console.log('Error in creating e911 id: ', error);
 
-        res.json(400, error);
+        sendError(res, error);
       }
     });
   } catch (error) {
     console.log('Error: ', error.message);
 
-    res.json(400, {
-      error: error.message
-    });
+    res.send(400, error.message);
   }
 }
 
@@ -217,8 +216,8 @@ function initialize(env_config, app) {
   dhs.configure(env_config);
 
   app.get('/config', getConfig);
-  app.get('/oauth/authorize', getAuthorizationURL);
-  app.get('/oauth/callback', getCallback);
+  app.get('/oauth/authorize', redirectToAuthorizeUrl);
+  app.get('/oauth/callback', redirectToCallbackUrl);
   app.post('/tokens', postToken);
   app.post('/e911ids', postE911Id);
 }

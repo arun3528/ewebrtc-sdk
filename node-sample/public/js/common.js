@@ -7,19 +7,20 @@
 /*jslint browser: true, devel: true, node: true, debug: true, todo: true, indent: 2, maxlen: 150*/
 
 // Make JSLint aware of variables and functions that are defined in other files.
-/*global ATT, unsupportedBrowserError, checkEnhancedWebRTCSession, addCall,
+/*global ATT, unsupportedBrowserError, loadSampleApp, checkEnhancedWebRTCSession, addCall,
   onSessionReady, onSessionDisconnected, onSessionExpired, onAddressUpdated, onError, onWarning, onDialing,
   onIncomingCall, onConnecting, onCallConnected, onMediaEstablished, onEarlyMedia, onAnswering, onCallMuted,
-  onCallUnmuted, onCallHeld, onCallResume, onCallDisconnecting, onCallDisconnected, onCallCanceled,
+  onCallUnMuted, onCallHeld, onCallResumed, onCallDisconnecting, onCallDisconnected, onCallCanceled,
   onCallRejected, onConferenceConnected, onConferenceDisconnected, onConferenceInvite, onConferenceCanceled,
   onConferenceEnded, onJoiningConference, onInvitationSent, onInviteAccepted, onInviteRejected,
-  onParticipantRemoved, onConferenceDisconnecting, onConferenceHold, onConferenceResumed, onNotification,
-  onCallSwitched, onCallRingbackProvided, onTransferring, onTransferred, onCallMoved, onMediaModification,
-  onStateChanged, onModificationInProgress, onToneSent, onToneSending*/
+  onParticipantRemoved, onConferenceDisconnecting, onConferenceHeld, onConferenceResumed, onNotification,
+  onCallSwitched, onCallRingBackProvided, onTransferring, onTransferred, onCallMoved, onMediaModification,
+  onStateChanged, onModificationInProgress, onToneSent, onToneSending, onGatewayUnreachable*/
 
 'use strict';
 
 var phone,
+  version,
   bWebRTCSupportExists;
 
 // ### Check if the current browser has WebRTC capability
@@ -234,6 +235,15 @@ if (!bWebRTCSupportExists) {
 // This will be our instance of the Phone object.
 phone = ATT.rtc.Phone.getPhone();
 
+// ### Getting the SDK version number
+// -----------------------------
+// Once you have the phone object, you can use the
+// [**phone.getVersion**](../../lib/webrtc-sdk/doc/Phone.html#getVersion) method on the Phone object to get the version number
+// of the SDK.
+
+version = phone.getVersion();
+document.getElementById('version').innerHTML = version;
+
 // ## Error Handling
 // -----------------
 // All errors during the usage of the Phone object are published
@@ -376,13 +386,21 @@ phone.on('session:disconnected', onSessionDisconnected);
 
 
 
-// ## Session expired  from Enhanced WebRTC
+// ## Session expired from Enhanced WebRTC
 // ### Register for _session:expired_ event
 // ---------------------------------
 // The [**session:expired**](../../lib/webrtc-sdk/doc/Phone.html#event:session:expired) event is published
 // when session is expired in the backend.
 // This event is published to indicate that there is a session deleted from the backend due to some reason.
 phone.on('session:expired', onSessionExpired);
+
+// ## Gateway unreachable   from Enhanced WebRTC
+// ### Register for _gateway:unreachable_ event
+// ---------------------------------
+// The [**gateway:unreachable**](../../lib/webrtc-sdk/doc/Phone.html#event:gateway:unreachable) event is published
+// when gateway is unreachable.
+// This event is published to indicate the client cannot get connected to the gateway due to some reason.
+phone.on('gateway:unreachable', onGatewayUnreachable);
 
 // ### Clear the current Enhanced WebRTC session
 // ---------------------------------
@@ -429,11 +447,11 @@ phone.on('call:connecting', onConnecting);
 // **Callback function example:**
 //
 // <pre>
-// function onCallRingbackProvided(data) {
+// function onCallRingBackProvided(data) {
 //   timestamp = data.timestamp;
 // }
 // </pre>
-phone.on('call:ringback-provided', onCallRingbackProvided);
+phone.on('call:ringback-provided', onCallRingBackProvided);
 
 // ### Register for _call:connected_ event
 // ---------------------------------
@@ -498,7 +516,7 @@ phone.on('dialing', onDialing);
 // ### Dialing
 // ---------------------------------
 
-function dialCall(callee, mediaType, localMedia, remoteMedia) {
+function dial(destination, mediaType, localMedia, remoteMedia) {
 
 // Once you have registered handlers for all appropriate
 // events you can use the [**phone.dial**](../../lib/webrtc-sdk/doc/Phone.html#dial) method on Phone to start a call.
@@ -506,7 +524,7 @@ function dialCall(callee, mediaType, localMedia, remoteMedia) {
   // If there's already a call in progress
   if (phone.isCallInProgress()) {
     // handle this call with the [**phone.addCall**](../../lib/webrtc-sdk/doc/Phone.html#addCall) method
-    addCall(callee, mediaType, localMedia, remoteMedia);
+    addCall(destination, mediaType, localMedia, remoteMedia);
   } else {
     // otherwise just the [**phone.dial**](../../lib/webrtc-sdk/doc/Phone.html#dial) method. You need to pass:
     phone.dial({
@@ -517,7 +535,7 @@ function dialCall(callee, mediaType, localMedia, remoteMedia) {
       //   * `1800CALLFED`
       //   * `911`
 
-      destination: callee,
+      destination: destination,
       // - a valid call type:
       //   * `audio` for audio-only calls and
       //   * `video` for video calls
@@ -646,7 +664,7 @@ function mute() {
 
 // Register for [**call:unmuted**](../../lib/webrtc-sdk/doc/Phone.html#event:call:unmuted) event, it is
 // published when [**phone.unmute**](../../lib/webrtc-sdk/doc/Phone.html#unmute) is invoked.
-phone.on('call:unmuted', onCallUnmuted);
+phone.on('call:unmuted', onCallUnMuted);
 
 function unmute() {
   // Use the [**phone.unmute**](../../lib/webrtc-sdk/doc/Phone.html#unmute) method to unmute the current call
@@ -667,7 +685,7 @@ function hold() {
 // ---------------------------------
 // Register for [**call:resumed**](../../lib/webrtc-sdk/doc/Phone.html#event:call:resumed) event, it is published when
 // [**phone.resume**](../../lib/webrtc-sdk/doc/Phone.html#resume) is invoked
-phone.on('call:resumed', onCallResume);
+phone.on('call:resumed', onCallResumed);
 
 function resume() {
   // Use the [**phone.resume**](../../lib/webrtc-sdk/doc/Phone.html#resume) method to resume the current call or conference.
@@ -687,7 +705,7 @@ function cancel() {
 // immediately after invoking [**phone.hangup**](../../lib/webrtc-sdk/doc/Phone.html#hangup)
 phone.on('call:disconnecting', onCallDisconnecting);
 
-function hangup() {
+function hangupCall() {
   //  Use the [**phone.hangup**](../../lib/webrtc-sdk/doc/Phone.html#hangup) method to hang up the current call.
   phone.hangup();
 }
@@ -950,12 +968,12 @@ phone.on('conference:ended', onConferenceEnded);
 // **Callback function example:**
 //
 // <pre>
-// function onConferenceHold(data) {
+// function onConferenceHeld(data) {
 //   mediaType = data.mediaType;
 //   timestamp = data.timestamp;
 // }
 // </pre>
-phone.on('conference:held', onConferenceHold);
+phone.on('conference:held', onConferenceHeld);
 
 // ### Register for _conference:resumed_ event
 // ---------------------------------
@@ -1019,6 +1037,25 @@ function joinConference(localMedia, remoteMedia) {
     localMedia: localMedia,
     // a valid `HTMLVideoElement` for the remote media stream.
     remoteMedia: remoteMedia
+  });
+}
+
+// ### Joining a second conference
+// --------------
+
+// Once you have an active call or conference, you can handle a second incoming conference using the
+// [**phone.joinConference**](../../lib/webrtc-sdk/doc/Phone.html#joinConference) method.
+
+function joinSecondConference(localMedia, remoteMedia, action) {
+  // The [**phone.joinConference**](../../lib/webrtc-sdk/doc/Phone.html#joinConference) method receives:
+  phone.joinConference({
+    // - the `HTMLVideoElement` object to use for the local stream
+    localMedia: localMedia,
+    // - the `HTMLVideoElement` object to use for the remote stream.
+    remoteMedia: remoteMedia,
+    // - an optional `action` (`hold` or `end`) to indicate whether to hold or end the current call.
+    // Use [**phone.isCallInProgress**](../../lib/webrtc-sdk/doc/Phone.html#isCallInProgress) to check whether there is a call in progress.
+    action: action
   });
 }
 
@@ -1168,3 +1205,6 @@ function sendDTMFTone(tone) {
 // ### Ending a DTMF 
 // ---------------------------------
 
+// ## load the sample app
+// ---------------------------------
+loadSampleApp();

@@ -36,7 +36,7 @@ function createAccessToken(appScope, authCode, success, error) {
   xhrToken.onreadystatechange = function () {
     if (xhrToken.readyState === 4) {
       if (xhrToken.status === 200) {
-        success(xhrToken.responseText);
+        success(JSON.parse(xhrToken.responseText));
       } else {
         error(xhrToken.responseText);
       }
@@ -54,7 +54,7 @@ function createE911Id(accessToken, address, is_confirmed, success, error) {
   xhrE911.onreadystatechange = function () {
     if (xhrE911.readyState === 4) {
       if (xhrE911.status === 200) {
-        success(xhrE911.responseText);
+        success(JSON.parse(xhrE911.responseText));
       } else {
         error(xhrE911.responseText);
       }

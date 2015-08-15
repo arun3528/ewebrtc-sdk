@@ -1,43 +1,35 @@
 /*jslint browser: true, devel: true, node: true, debug: true, todo: true, indent: 2, maxlen: 150*/
-/*global ATT, console, log, loadConfiguration, loadDefaultView, clearMessage, clearError, onSessionDisconnected,
-  validateAddress, associateE911Id, getE911Id, loginVirtualNumberOrAccountIdUser, loginEnhancedWebRTC,
-  onError, phoneLogout, loadView, switchView, dialCall, answer, answer2ndCall,
-  hold, resume, startConference, joinConference, addParticipant, virtual_numbers,
-  getParticipants, removeParticipant, move, switchCall, cleanPhoneNumber, toggleDialPad,
+/*global ATT, console, log, virtual_numbers, clearMessage, clearError,
+  onSessionDisconnected, validateAddress, associateE911Id, getE911Id, loginVirtualNumberOrAccountIdUser,
+  loginEnhancedWebRTC, onError, phoneLogout, loadView, switchView, currentCallType, callExists, dial,
+  answer, answer2ndCall, joinSecondConference, hold, resume, mute, unmute, upgrade, downgrade,
+  startConference, joinConference, addParticipant, virtual_numbers, getParticipants, removeParticipant,
+  move, switchCall, transfer, hangupCall, endConference, cleanPhoneNumber, toggleDialPad,
   dialpad, sendDTMFTone */
 
 'use strict';
 
 var sessionData = {},
+  currentConferenceHost = false,
   participantsVisible = false;
-
-function loadSampleApp() {
-  loadConfiguration(function () {
-    // load the default view into the browser
-    loadDefaultView();
-  });
-}
 
 function createE911AddressId(event, form) {
   event.preventDefault();
 
   clearError();
 
-  if (!sessionData.access_token) {
-    switchView('login');
-    onError('No access token available to login to Enhanced WebRTC. Please create an access token first');
-    return;
-  }
-
   try {
+
+    if (!sessionData.access_token) {
+      switchView('login');
+      throw new Error('No access token available to login to Enhanced WebRTC. Please create an access token first');
+    }
+
     var address = validateAddress(form);
 
     getE911Id(address.base,
       address.is_confirmed,
       function (response) {
-        if (typeof response === 'string') {
-          response = JSON.parse(response);
-        }
         loginEnhancedWebRTC(sessionData.access_token, response);
       },
       onError);
@@ -55,7 +47,8 @@ function updateE911AddressId(event, form) {
   try {
     var address = validateAddress(form);
 
-    getE911Id(address,
+    getE911Id(address.base,
+      address.is_confirmed,
       function (e911Id) {
         associateE911Id(e911Id.e911Locations.addressIdentifier);
       },
@@ -86,6 +79,7 @@ function showLoginForm(form) {
   document.addEventListener('click', hideView.bind(null, form));
 
   form.style.display = 'block';
+  form.elements.username.focus();
 }
 
 function addOption(select, option, val) {
@@ -176,63 +170,57 @@ function logout() {
   onSessionDisconnected();
 }
 
-function showCall(event) {
-  event.stopPropagation();
+function clickBtn(event) {
 
-  clearError();
+  if (!event || !event.target) {
+    return;
+  }
 
-  // dial takes destination, mediaType, local and remote media HTML elements
+  var target = event.target,
+    destinationNode,
+    id,
+    val;
 
-  var callForm = document.getElementById('callForm'),
-    confForm = document.getElementById('confForm'),
-    that = event.currentTarget,
-    callee,
-    audioOnly,
-    btnConf = document.getElementById('btn-show-conference'),
-    btnDial = document.getElementById('btn-dial'),
-    localVideo = document.getElementById('localVideo'),
-    remoteVideo = document.getElementById('remoteVideo');
+  if ('SPAN' === event.target.nodeName) {
+    target = target.parentNode;
+  }
 
-  callForm.classList.remove('hidden');
-  callForm.classList.add('shown');
+  destinationNode = document.getElementById('destination');
+  id = target && target.id ? target.id : '';
+  val = id.substring('4');
 
-  confForm.classList.remove('shown');
-  confForm.classList.add('hidden');
+  destinationNode.value = destinationNode.value ? destinationNode.value + val : val;
 
-  btnConf.classList.remove('active');
-  that.classList.add('active');
+  if (callExists() && 'call' === currentCallType) {
+    sendDTMFTone(val);
+  }
+}
 
-//  if (!window.dialer) {
-//    createDialPad({
-//      onPress: function (key) {
-//        console.log('a key was pressed', key);
-//      },
-//      onCallableNumber: function (number) {
-//        console.log('we have a number that seems callable', number);
-//      },
-//      onHide: function () {
-//        console.log('removed it');
-//      },
-//      onCall: function (number) {
-//        console.log('The call button was pressed', number);
-//        audioOnly = document.getElementById('callAudioOnly').checked;
-//        callee = document.getElementById('callee').value;
-//        //util method to clean phone number
-//        callee = appendDomainToAccountIDCallee(callee);
-//
-//        dialCall(callee, (audioOnly ? 'audio' : 'video'), localVideo, remoteVideo);
-//      }
-//    });
-//  }
+function dialCall(mediaType) {
+  var destinationNode,
+    destination,
+    localVideo,
+    remoteVideo;
 
-  btnDial.onclick = function () {
-    audioOnly = document.getElementById('callAudioOnly').checked;
-    callee = document.getElementById('callee').value;
-    //util method to clean phone number
-    callee = cleanPhoneNumber(callee);
+  destinationNode = document.getElementById('destination');
 
-    dialCall(callee, (audioOnly ? 'audio' : 'video'), localVideo, remoteVideo);
-  };
+  destination = destinationNode.value;
+
+  //util method to clean phone number
+  destination = cleanPhoneNumber(destination);
+
+  localVideo = document.getElementById('localVideo');
+  remoteVideo = document.getElementById('remoteVideo');
+
+  dial(destination, mediaType, localVideo, remoteVideo);
+}
+
+function dialVideo() {
+  dialCall('video');
+}
+
+function dialAudio() {
+  dialCall('audio');
 }
 
 function answerCall(action) {
@@ -257,17 +245,26 @@ function endAndAnswer() {
   answerCall('end');
 }
 
-function showDialPad() {
-  toggleDialPad({
-    onPress: function (key) {
-      sendDTMFTone(key);
-      console.log('Key ' + key + ' was pressed');
-    },
-    onCall: function () {
-      dialpad.hide();
-      dialpad.visible = false;
-    }
-  });
+function updateConference(action) {
+  document.getElementById('ringtone').pause();
+  clearMessage();
+
+  var localVideo = document.getElementById('localVideo'),
+    remoteVideo = document.getElementById('remoteVideo');
+
+  if (undefined !== action) {
+    joinSecondConference(localVideo, remoteVideo, action);
+  } else {
+    joinConference(localVideo, remoteVideo);
+  }
+}
+
+function holdAndJoin() {
+  updateConference('hold');
+}
+
+function endAndJoin() {
+  updateConference('end');
 }
 
 function holdCall() {
@@ -278,50 +275,40 @@ function resumeCall() {
   resume();
 }
 
-function showConference(event) {
-  clearError();
+function muteCall() {
+  mute();
+}
 
-  var callForm = document.getElementById('callForm'),
-    confForm = document.getElementById('confForm'),
-    confAudioOnly,
-    btnCreateConference = document.getElementById('btn-create-conference'),
-    that = event.currentTarget,
-    btnCall = document.getElementById('btn-show-call'),
-    localVideo = document.getElementById('localVideo'),
-    remoteVideo = document.getElementById('remoteVideo');
+function unMuteCall() {
+  unmute();
+}
 
-  callForm.classList.remove('shown');
-  callForm.classList.add('hidden');
+function upgradeCall() {
+  upgrade();
+}
 
-  confForm.classList.remove('hidden');
-  confForm.classList.add('shown');
+function downgradeCall() {
+  downgrade();
+}
 
-  that.classList.add('active');
-  btnCall.classList.remove('active');
+function startConf(mediaType) {
+  var localVideo,
+    remoteVideo;
 
-//  if (!window.dialer) {
-//    createDialPad({
-//      onPress: function (key) {
-//        console.log('a key was pressed', key);
-//      },
-//      onCallableNumber: function (number) {
-//        console.log('we have a number that seems callable', number);
-//      },
-//      onHide: function () {
-//        console.log('removed it');
-//      },
-//      onCall: function (number) {
-//        console.log('The call button was pressed', number);
-//        confAudioOnly = document.getElementById('confAudioOnly').checked;
-//        startConference((confAudioOnly ? 'audio' : 'video'), localVideo, remoteVideo);
-//      }
-//    });
-//  }
+  localVideo = document.getElementById('localVideo');
+  remoteVideo = document.getElementById('remoteVideo');
 
-  btnCreateConference.onclick = function () {
-    confAudioOnly = document.getElementById('confAudioOnly').checked;
-    startConference((confAudioOnly ? 'audio' : 'video'), localVideo, remoteVideo);
-  };
+  currentConferenceHost = true;
+
+  startConference(mediaType, localVideo, remoteVideo);
+}
+
+function startVideoConference() {
+  startConf('video');
+}
+
+function startAudioConference() {
+  startConf('audio');
 }
 
 function join() {
@@ -334,66 +321,66 @@ function join() {
   joinConference(localVideo, remoteVideo);
 }
 
-function getListOfInvitees(partcpnts) {
-  var noSpacesString = partcpnts.replace(/ +?/g, '');
-  partcpnts = noSpacesString.split(',');
-  return partcpnts;
+function addConfParticipant() {
+  var destinationNode,
+    destination;
+
+  destinationNode = document.getElementById('destination');
+
+  destination = destinationNode.value;
+
+  //util method to clean phone number
+  destination = cleanPhoneNumber(destination);
+
+  addParticipant(destination);
 }
 
-function participant() {
-  var partcpnt;
+function removeUser() {
+  var user = event.currentTarget.id;
 
-  partcpnt = document.getElementById('participant').value;
-
-  addParticipant(partcpnt);
+  removeParticipant(user);
 }
 
 function showParticipants() {
   var participantsPanel,
-    partcpnts,
-    expandParticipants,
+    participants,
     participantsList,
-    key,
+    participant,
     html;
 
   participantsPanel = document.getElementById('panel-participants');
   participantsList = document.getElementById('participants-list');
-  expandParticipants = document.getElementById('expand-participants');
 
-  partcpnts = getParticipants();
+  participants = getParticipants();
 
   html = '';
 
-  for (key in partcpnts) {
-    if (partcpnts.hasOwnProperty(key)) {
-      html += '<div class="row"></div><div class="participant glyphicon glyphicon-user"> ' + key +
-        ' &nbsp; <span class="remove-participant glyphicon glyphicon-remove" onclick="removeUser()" id="' + key +
-        '"></span></div></div>';
+  for (participant in participants) {
+    if (participants.hasOwnProperty(participant)) {
+      html += '<div class="row">' +
+                '<div class="participant glyphicon glyphicon-user"> ' + participant + ' &nbsp; ' +
+                  '<span class="remove-participant glyphicon glyphicon-remove" onclick="removeUser()" id="' + participant + '"></span>' +
+                '</div>' +
+              '</div>';
     }
   }
 
   if (participantsPanel
-      && participantsList
-      && expandParticipants
-      && partcpnts) {
-    participantsPanel.style.display = 'block';
-
-    expandParticipants.innerHTML = '<span class="glyphicon glyphicon-chevron-up"> </span>';
+      && participantsList) {
     participantsList.innerHTML = html;
+
+    participantsPanel.style.display = 'block';
     participantsVisible = true;
   }
 }
 
 function hideParticipants() {
-  var participantsPanel,
-    expandParticipants;
+  var participantsPanel;
 
   participantsPanel = document.getElementById('panel-participants');
-  expandParticipants = document.getElementById('expand-participants');
 
   if (participantsPanel) {
     participantsPanel.style.display = 'none';
-    expandParticipants.innerHTML = '<span class="glyphicon glyphicon-chevron-down"> </span>';
     participantsVisible = false;
   }
 }
@@ -406,20 +393,22 @@ function toggleParticipants() {
   }
 }
 
-function removeUser() {
-  var user = event.currentTarget.id;
-
-  removeParticipant(user);
+function switchCalls() {
+  switchCall();
 }
 
 function moveCall() {
   move();
 }
 
-function switchCalls() {
-  switchCall();
+function transferCall() {
+  transfer();
 }
 
-// ## load the sample app
-// ---------------------------------
-loadSampleApp();
+function hangup() {
+  if ('call' === currentCallType) {
+    hangupCall();
+  } else if ('conference' === currentCallType) {
+    endConference();
+  }
+}
